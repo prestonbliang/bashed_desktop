@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -u
+
+if (( BASH_VERSINFO[0] < 5 )); then
+    echo "bashed_desktop requires bash version 5 or higher u bomboclat!" >&2
+    exit 1
+fi
+
+#resolve symlinks so link in path finds lib/
+src="${BASH_SOURCE[0]}"
+while [[ -L $src ]]; do
+    dir=$(cd -P "$(dirname "$src")" && pwd)
+    src=$(readlink "$src")
+    [[ $src == /* ]] || src="$dir/$src"
+done
+BD_ROOT=$(cd -P "$(dirname "$src")/.." && pwd)
+BD_VERSION=$(<"$BD_ROOT/VERSION")
+
+case ${1:-} in 
+    -v|--version) echo "based_desktop $BD_VERSION"; exit 0 ;;
+    -h|--help) echo "usage: bashed_desktop [-v|--version] [-h|--help]"; exit 0 ;;
+esac
+
+if [[ ! -t 0 || ! -t 1 ]]; then
+    echo "bashed_desktop requires a terminal to run u bomboclat!" >&2
+    exit 1
+fi
+
+for f in log term input render loop desktop; do
+    #shellcheck source=/dev/null
+    source "$BD_ROOT/lib/$f.sh"
+done
+
+#never leav in raw mode, even if we crash or get WHOPPED
+trap term_restore EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+term init || { echo "failed to init terminal u bomboclat!" >&2; exit 1; }
+main_loop
