@@ -1,4 +1,4 @@
-#shellcheck disable=SC2034 #globals r shared with other files
+# shellcheck disable=SC2034  # globals are shared with the other files
 #input handlers for keyboard and mouse input, including SGR mouse support
 
 IN_KEY="" IN_ACT="" IN_BTN="" IN_X=0 IN_Y=0
@@ -32,17 +32,17 @@ poll_input() {
   #esc KEY, kinda confuzzling
 read_escape() {
     local c seq="" ord
-    if ! IFS= read -rsn1 -t 0.001 c; then
+    if ! IFS= read -rsn1 -t 0.01 c; then
         IN_KEY=esc
         return
     fi
-    if [[ $c != '[' && $c != "0" ]]; then
+    if [[ $c != '[' && $c != "O" ]]; then
         IN_KEY=esc
         return
     fi
 
     #sequences end on a byte in @..~
-    while IFS= read -rsn1 -t 0.001 c; do
+    while IFS= read -rsn1 -t 0.01 c; do
         seq+=$c
         printf -v ord '%d' "'$c"
         (( ord >= 64 && ord <= 126 )) && break
@@ -65,7 +65,7 @@ parse_mouse() {
     IN_Y=${rest#*;}
     IN_KEY=mouse
 
-    case $(($b & 0x3)) in
+    case $(( b & 3 )) in
         0) IN_BTN=left ;;
         1) IN_BTN=middle ;;
         2) IN_BTN=right ;;
@@ -119,7 +119,7 @@ parse_csi() {
                 3) name=delete ;;
                 4|8) name=end ;;
                 5) name=page-up ;;
-                6) name=pagedown ;;
+                6) name=page-down ;;
                 *) name=csi-$seq ;;
             esac
             ;;

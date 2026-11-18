@@ -1,5 +1,4 @@
-#shellceck disable!!!! WALAh
-#globals r shared with other files
+# shellcheck disable=SC2034  # globals are shared with the other files#globals r shared with other files
 
 ROWS=24
 COLS=80
@@ -29,7 +28,7 @@ term_init() {
 
 term_restore() {
     ((TTY_ON)) || return 0
-    printf '\e[?10006l\e[?1002l\e[?1000l\e[?25h\e[?1049l'
+    printf '\e[?1006l\e[?1002l\e[?1000l\e[?25h\e[?1049l'
     stty "$STTY_SAVED"
     TTY_ON=0
 }

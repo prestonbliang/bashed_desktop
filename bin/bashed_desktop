@@ -17,7 +17,7 @@ BD_ROOT=$(cd -P "$(dirname "$src")/.." && pwd)
 BD_VERSION=$(<"$BD_ROOT/VERSION")
 
 case ${1:-} in 
-    -v|--version) echo "based_desktop $BD_VERSION"; exit 0 ;;
+    -v|--version) echo "bashed_desktop $BD_VERSION"; exit 0 ;;
     -h|--help) echo "usage: bashed_desktop [-v|--version] [-h|--help]"; exit 0 ;;
 esac
 
@@ -26,7 +26,7 @@ if [[ ! -t 0 || ! -t 1 ]]; then
     exit 1
 fi
 
-for f in log term input render loop desktop; do
+for f in log term input render wm loop desktop; do
     #shellcheck source=/dev/null
     source "$BD_ROOT/lib/$f.sh"
 done
@@ -36,5 +36,7 @@ trap term_restore EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-term init || { echo "failed to init terminal u bomboclat!" >&2; exit 1; }
+term_init || { echo "failed to init terminal u bomboclat!" >&2; exit 1; }
+render_init
+desktop_start
 main_loop
